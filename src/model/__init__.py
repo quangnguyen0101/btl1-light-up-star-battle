@@ -4,6 +4,7 @@ from src.model.result import (
     CONTRACT_FIELDS,
     build_result,
     empty_state,
+    path_from_came_from,
     validate_result,
 )
 from src.model.solver import solve
@@ -15,6 +16,7 @@ __all__ = [
     "StarBattleProblem",
     "build_result",
     "empty_state",
+    "path_from_came_from",
     "solve",
     "validate_result",
 ]

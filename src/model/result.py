@@ -48,6 +48,29 @@ def empty_state(problem: Any) -> State:
     return tuple([0] * problem.rows)
 
 
+def path_from_came_from(
+    came_from: dict,
+    goal: Sequence[int],
+    empty: Sequence[int],
+) -> list[State]:
+    """Walk ``came_from`` backwards from ``goal`` and return the path in order.
+
+    ``came_from`` maps every visited node to its parent, the root mapping to
+    ``None``.  When the root is not the empty board (algorithms that propagate
+    forced moves before searching), the empty board is prepended so ``path[0]``
+    is always the board with no piece placed.
+    """
+    states: list[State] = []
+    node: Any = tuple(goal)
+    while node is not None:
+        states.append(tuple(int(mask) for mask in node))
+        node = came_from[node]
+    states.reverse()
+    if states[0] != tuple(empty):
+        states.insert(0, tuple(int(mask) for mask in empty))
+    return states
+
+
 def build_result(
     problem: Any,
     *,
