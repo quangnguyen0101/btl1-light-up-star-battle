@@ -3,11 +3,11 @@ import json
 import unittest
 from pathlib import Path
 
-from src.star_battle import StarBattleProblem
+from src.model.star_battle import StarBattleProblem
 
 
-ROOT = Path(__file__).resolve().parents[1]
-PUZZLE_PATH = ROOT / "data" / "star_battle" / "normal_1star_5x5.json"
+ROOT = Path(__file__).resolve().parents[2]
+PUZZLE_PATH = ROOT / "data" / "star_battle" / "sb-5x5-normal-03.json"
 
 
 class TestStarBattle(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestStarBattle(unittest.TestCase):
         cls.solution = cls.problem.state_from_coords(cls.solution_coords)
 
     def test_loads_input(self):
-        self.assertEqual(self.problem.name, "normal_1star_5x5")
+        self.assertEqual(self.problem.name, "sb-5x5-normal-03")
         self.assertEqual((self.problem.rows, self.problem.cols), (5, 5))
         self.assertEqual(self.problem.stars_per_unit, 1)
         self.assertEqual(self.problem.variant, "normal")

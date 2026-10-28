@@ -4,7 +4,6 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
-import argparse
 
 
 Coord = tuple[int, int]
@@ -160,29 +159,3 @@ class LightUpProblem:
                 else: chars.append(cell)
             lines.append(" ".join(chars))
         return "\n".join(lines)
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Run a Light Up puzzle")
-    parser.add_argument(
-        "input",
-        nargs="?",
-        default="data/light_up/light_up_7x7.json",
-        help="Path to the Light Up JSON file",
-    )
-    args = parser.parse_args()
-
-    input_path = Path(args.input).resolve()
-    problem = LightUpProblem.from_json(input_path)
-
-    print(f"{problem.name}: {problem.rows}x{problem.cols}")
-
-    if problem.known_solution is None:
-        print("File JSON chưa có known_solution.")
-        return
-
-    solution = problem.state_from_coords(problem.known_solution)
-    print(problem.render(solution))
-    print(f"Known sample solution valid: {problem.is_goal(solution)}")
-
-if __name__ == "__main__":
-    main()

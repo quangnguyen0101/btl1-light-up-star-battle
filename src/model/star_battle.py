@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import argparse
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -335,39 +334,3 @@ class StarBattleProblem:
             lines.append(" ".join(chars))
 
         return "\n".join(lines)
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Run a Star Battle puzzle")
-    parser.add_argument(
-        "input",
-        nargs="?",
-        default="data/star_battle/normal_1star_5x5.json",
-        help="Path to the Star Battle JSON file",
-    )
-    args = parser.parse_args()
-
-    input_path = Path(args.input).resolve()
-    problem = StarBattleProblem.from_json(input_path)
-
-    print(
-        f"{problem.name}: {problem.rows}x{problem.cols}, "
-        f"variant={problem.variant}, "
-        f"{problem.stars_per_unit} star(s) per row/column"
-    )
-    print(
-        f"Region constraints: "
-        f"{'enabled' if problem.variant == 'normal' else 'disabled'}"
-    )
-
-    if problem.known_solution is None:
-        print("File JSON chưa có known_solution.")
-        return
-
-    solution = problem.state_from_coords(problem.known_solution)
-    print(problem.render(solution))
-    print(f"Known sample solution valid: {problem.is_goal(solution)}")
-
-
-if __name__ == "__main__":
-    main()

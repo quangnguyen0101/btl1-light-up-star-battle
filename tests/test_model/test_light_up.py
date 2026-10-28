@@ -1,11 +1,11 @@
 import unittest
 from pathlib import Path
 
-from src.light_up import LightUpProblem
+from src.model.light_up import LightUpProblem
 
 
-ROOT = Path(__file__).resolve().parents[1]
-INPUT_FILE = ROOT / "data" / "light_up" / "light_up_7x7.json"
+ROOT = Path(__file__).resolve().parents[2]
+INPUT_FILE = ROOT / "data" / "light_up" / "lu-7x7-normal-03.json"
 
 
 class TestLightUp(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestLightUp(unittest.TestCase):
 
     def test_loads_input(self):
         """JSON is parsed with the expected dimensions."""
-        self.assertEqual(self.problem.name, "light_up_7x7")
+        self.assertEqual(self.problem.name, "lu-7x7-normal-03")
         self.assertEqual(self.problem.rows, 7)
         self.assertEqual(self.problem.cols, 7)
         self.assertEqual(len(self.problem.grid), 7)
