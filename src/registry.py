@@ -9,6 +9,7 @@ from src.heuristic.registry import ALGORITHMS as HEURISTIC
 ALGORITHMS = {
     "dfs": ("blind_search", BLIND_SEARCH["dfs"]),
     "a_star": ("heuristic", HEURISTIC["a_star"]),
+    "greedy": ("heuristic", HEURISTIC["greedy"]),
 }
 
 __all__ = ["ALGORITHMS"]
