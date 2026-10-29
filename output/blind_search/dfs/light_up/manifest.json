@@ -1,0 +1,169 @@
+{
+  "algo": "dfs",
+  "kind": "light_up",
+  "timeout": 300.0,
+  "chay_luc": "2026-10-29T08:16:24",
+  "results": {
+    "lu-7x7-easy-01": {
+      "status": "xong",
+      "expanded": 117,
+      "generated": 119,
+      "frontier_peak": 5,
+      "time_s": 0.015
+    },
+    "lu-7x7-easy-02": {
+      "status": "xong",
+      "expanded": 38,
+      "generated": 41,
+      "frontier_peak": 5,
+      "time_s": 0.005
+    },
+    "lu-7x7-hard-01": {
+      "status": "xong",
+      "expanded": 90,
+      "generated": 92,
+      "frontier_peak": 4,
+      "time_s": 0.012
+    },
+    "lu-7x7-hard-02": {
+      "status": "xong",
+      "expanded": 105,
+      "generated": 107,
+      "frontier_peak": 6,
+      "time_s": 0.016
+    },
+    "lu-7x7-normal-01": {
+      "status": "xong",
+      "expanded": 88,
+      "generated": 91,
+      "frontier_peak": 6,
+      "time_s": 0.011
+    },
+    "lu-7x7-normal-02": {
+      "status": "xong",
+      "expanded": 68,
+      "generated": 71,
+      "frontier_peak": 6,
+      "time_s": 0.009
+    },
+    "lu-7x7-normal-03": {
+      "status": "xong",
+      "expanded": 76,
+      "generated": 79,
+      "frontier_peak": 5,
+      "time_s": 0.01
+    },
+    "lu-10x10-easy-01": {
+      "status": "xong",
+      "expanded": 316,
+      "generated": 319,
+      "frontier_peak": 6,
+      "time_s": 0.072
+    },
+    "lu-10x10-easy-02": {
+      "status": "xong",
+      "expanded": 170,
+      "generated": 173,
+      "frontier_peak": 5,
+      "time_s": 0.036
+    },
+    "lu-10x10-hard-01": {
+      "status": "xong",
+      "expanded": 650,
+      "generated": 651,
+      "frontier_peak": 5,
+      "time_s": 0.148
+    },
+    "lu-10x10-hard-02": {
+      "status": "xong",
+      "expanded": 106,
+      "generated": 111,
+      "frontier_peak": 7,
+      "time_s": 0.024
+    },
+    "lu-10x10-normal-01": {
+      "status": "xong",
+      "expanded": 158,
+      "generated": 161,
+      "frontier_peak": 5,
+      "time_s": 0.035
+    },
+    "lu-10x10-normal-02": {
+      "status": "xong",
+      "expanded": 196,
+      "generated": 203,
+      "frontier_peak": 10,
+      "time_s": 0.045
+    },
+    "lu-10x10-normal-03": {
+      "status": "xong",
+      "expanded": 100,
+      "generated": 107,
+      "frontier_peak": 9,
+      "time_s": 0.023
+    },
+    "lu-14x14-easy-01": {
+      "status": "xong",
+      "expanded": 18535,
+      "generated": 18546,
+      "frontier_peak": 14,
+      "time_s": 6.942
+    },
+    "lu-14x14-easy-02": {
+      "status": "xong",
+      "expanded": 713,
+      "generated": 725,
+      "frontier_peak": 15,
+      "time_s": 0.282
+    },
+    "lu-14x14-hard-01": {
+      "status": "xong",
+      "expanded": 19315,
+      "generated": 19323,
+      "frontier_peak": 14,
+      "time_s": 7.649
+    },
+    "lu-14x14-hard-02": {
+      "status": "xong",
+      "expanded": 17369,
+      "generated": 17383,
+      "frontier_peak": 17,
+      "time_s": 8.358
+    },
+    "lu-14x14-normal-01": {
+      "status": "xong",
+      "expanded": 24862,
+      "generated": 24875,
+      "frontier_peak": 16,
+      "time_s": 10.948
+    },
+    "lu-14x14-normal-02": {
+      "status": "xong",
+      "expanded": 6734,
+      "generated": 6750,
+      "frontier_peak": 18,
+      "time_s": 2.837
+    },
+    "lu-30x30-daily-01": {
+      "status": "timeout",
+      "expanded": -1,
+      "generated": -1,
+      "frontier_peak": -1,
+      "time_s": 300.0
+    },
+    "lu-30x40-weekly-01": {
+      "status": "xong",
+      "expanded": 22517,
+      "generated": 22583,
+      "frontier_peak": 68,
+      "time_s": 44.851
+    },
+    "lu-40x50-monthly-01": {
+      "status": "timeout",
+      "expanded": -1,
+      "generated": -1,
+      "frontier_peak": -1,
+      "time_s": 300.0
+    }
+  }
+}

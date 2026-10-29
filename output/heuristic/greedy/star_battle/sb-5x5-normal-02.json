@@ -1,0 +1,23 @@
+{
+  "name": "sb-5x5-normal-02",
+  "type": "star_battle",
+  "variant": "normal",
+  "rows": 5,
+  "cols": 5,
+  "stars_per_unit": 1,
+  "regions": [
+    [0, 0, 1, 1, 1],
+    [0, 0, 2, 2, 3],
+    [0, 0, 2, 2, 3],
+    [4, 4, 2, 4, 4],
+    [4, 4, 4, 4, 4]
+  ],
+  "blocked_cells": [],
+  "known_solution": [
+    [0, 3],
+    [1, 1],
+    [2, 4],
+    [3, 2],
+    [4, 0]
+  ]
+}

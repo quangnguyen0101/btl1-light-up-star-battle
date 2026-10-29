@@ -1,486 +1,181 @@
-# Logic Puzzles Starter
+# Tổng hợp BTL1: Light Up và Star Battle
 
-Dự án xây dựng nền tảng để mô hình hóa, kiểm tra và giải hai bài toán logic: **Light Up (Akari)** và **Star Battle** bằng Python.
+Dự án mô hình hoá và giải hai bài toán logic **Light Up (Akari)** và **Star Battle** bằng Python. Các thuật toán tìm kiếm dùng chung một hợp đồng kết quả, một CLI thống nhất, và so sánh được trên cùng bộ 48 đề.
 
-Repo cung cấp cấu trúc dữ liệu cho bài toán, `Parser` đọc dữ liệu từ file JSON, cơ chế biểu diễn `State` bằng `Bitmask`, các hàm kiểm tra luật chơi, hiển thị bàn cờ và `Interface` chung để tích hợp các thuật toán tìm kiếm do các thành viên trong nhóm phát triển.
+## 1. Bài toán
 
-## 1. Tổng quan dự án
+- **Light Up**: đặt bóng đèn vào ô trắng sao cho mọi ô trắng được chiếu sáng, không có hai bóng nhìn thấy nhau theo hàng hoặc cột, và mỗi tường số có đúng số bóng liền kề.
+- **Star Battle**: đặt sao sao cho mỗi hàng, cột và vùng có đúng `stars_per_unit` sao; hai sao không chạm nhau (kể cả chéo); không đặt sao trên ô bị khoá. Biến thể `shapeless` không có vùng.
 
-### Các bài toán được hỗ trợ
+## 2. Thuật toán
 
-- **Light Up (Akari):** Đặt các bóng đèn vào ô trắng sao cho mọi ô trắng đều được chiếu sáng, không có hai bóng đèn nhìn thấy nhau theo hàng hoặc cột, và các ô tường có số thỏa mãn số bóng đèn liền kề.
-- **Star Battle:** Đặt các ngôi sao sao cho mỗi hàng, mỗi cột và mỗi vùng (đối với biến thể `normal`) có đúng số sao yêu cầu. Hai ngôi sao không được nằm cạnh nhau theo chiều ngang, chiều dọc hoặc đường chéo.
+| Thuật toán | Họ | Mô tả |
+|---|---|---|
+| `dfs` | `blind_search` | Tìm kiếm theo chiều sâu, không dùng heuristic. Duyệt theo từng hàng (Star Battle) hoặc từng ô trắng (Light Up). |
+| `greedy` | `heuristic` | Greedy Best-First. Chỉ dùng `h(n)` để chọn nút tiếp theo. `h` là số cột và số vùng còn thiếu sao (Star Battle), hoặc số ô trắng chưa được chiếu sáng (Light Up). Light Up có lan truyền ràng buộc (các bước bắt buộc) và chọn ô theo MRV. |
 
-### Các chức năng chính
+Greedy không đảm bảo tối ưu. DFS đầy đủ hơn, Greedy nhanh hơn trên các đề vừa và nhỏ.
 
-- Đọc dữ liệu bài toán từ file JSON.
-- Biểu diễn `State` bằng `Bitmask` để tiết kiệm bộ nhớ và hỗ trợ thao tác bit.
-- Chuyển đổi giữa danh sách tọa độ và `State`.
-- Kiểm tra tính hợp lệ của trạng thái bằng `Validation`.
-- Kiểm tra trạng thái đích bằng `Goal State`.
-- Hiển thị bàn cờ dưới dạng văn bản.
-- Cung cấp `Interface` chung để tích hợp các `Search Algorithm`.
-- Sử dụng `Unit Test` để kiểm tra mô hình và luật chơi.
+Các thuật toán đã thử và bỏ: A\* (commit `35603f3`), Simulated Annealing (commit `67b247e`, không giải được đề lớn nào trong 120s). Lịch sử đầy đủ nằm trong git.
 
-## 2. Yêu cầu hệ thống
+## 3. Hợp đồng kết quả
 
-- Python 3.10 trở lên.
-- Git để tải repo.
-- Các thư viện chuẩn có sẵn của Python.
+Mọi thuật toán trả về dict với các trường (định nghĩa trong `src/model/result.py`):
 
-Hiện tại, phần mô hình bài toán và kiểm thử không yêu cầu cài thêm thư viện bên ngoài.
+| Trường | Ý nghĩa |
+|---|---|
+| `solution` | Danh sách toạ độ `[row, col]`, `[]` nếu không giải được |
+| `state` | Bitmask, luôn được suy ra từ `solution` bởi `build_result` |
+| `path` | Các trạng thái bitmask từ bàn trống (`path[0]`) tới lời giải (`path[-1]`) |
+| `expanded` | Số nút lấy ra khỏi frontier và xử lý, kể cả nút đích |
+| `generated` | Số nút đưa vào frontier |
+| `frontier_peak` | Kích thước lớn nhất của frontier (DFS: stack) |
 
-## 3. Cấu trúc thư mục
+Runner thêm `status` (`xong`, `timeout`, `vo nghiem`) và `time_s`. Khi timeout, `expanded`, `generated`, `frontier_peak` đặt là `-1` và `known_solution` là `[]`.
+
+## 4. Cấu trúc thư mục
 
 ```text
-logic_puzzles_starter/
-├── data/
-│   ├── light_up/
-│   │   ├── light_up_7x7.json
-│   │   └── light_up_10x10.json
-│   └── star_battle/
-│       ├── normal_1star_5x5.json
-│       ├── normal_2star_10x10.json
-│       ├── shapeless_1star_6x6.json
-│       └── shapeless_2star_10x10.json
+tong-hop/
+├── data/                  48 đề JSON, chia theo loại (light_up, star_battle)
 ├── src/
-│   ├── __init__.py
-│   ├── light_up.py
-│   ├── star_battle.py
-│   └── solver.py
-├── tests/
-│   ├── test_light_up.py
-│   └── test_star_battle.py
-├── .gitignore
-└── README.md
+│   ├── model/             Mô hình bài toán và hợp đồng kết quả
+│   │   ├── light_up.py
+│   │   ├── star_battle.py
+│   │   ├── result.py      build_result, validate_result, path_from_came_from
+│   │   └── solver.py
+│   ├── blind_search/      DFS
+│   ├── heuristic/greedy/  Greedy Best-First (theo loại đề)
+│   ├── utils/             Đọc/ghi JSON, bảng markdown, giới hạn thời gian
+│   └── registry.py        Tên thuật toán -> (họ, hàm chạy)
+├── scripts/
+│   ├── run.py             Chạy một thuật toán trên bộ đề
+│   ├── verify.py          Kiểm tra dữ liệu, hợp đồng, is_goal, toàn vẹn file
+│   ├── compare.py         Tổng hợp các lượt chạy vào output/so-sanh/diff.md
+│   ├── demo.py            In từng bước của một đề theo path
+│   └── figures.py         Sinh toàn bộ ảnh trong figs/
+├── viz/                   Vẽ bàn cờ bằng Pillow (đề, lời giải)
+├── output/                Kết quả chạy: bang.md, manifest.json, lời giải JSON
+├── figs/                  Ảnh PNG (sinh bằng scripts.figures)
+├── tests/                 Unit test, theo họ thuật toán và mô hình
+└── requirements.txt       Chỉ cần pillow (cho viz)
 ```
 
-Ý nghĩa các thư mục và file:
+## 5. Cài đặt
 
-- `data/`: Chứa các bộ dữ liệu bài toán dưới định dạng JSON.
-- `src/light_up.py`: Mô hình bài toán Light Up, xử lý ánh sáng, kiểm tra luật chơi và hiển thị bàn cờ.
-- `src/star_battle.py`: Mô hình bài toán Star Battle, kiểm tra luật chơi và hiển thị bàn cờ.
-- `src/solver.py`: Cung cấp `Interface` chung để gọi thuật toán giải.
-- `tests/`: Chứa các `Unit Test` để kiểm tra mô hình và luật chơi.
-- `README.md`: Hướng dẫn cài đặt và sử dụng dự án.
-
-## 4. Cài đặt
-
-### Bước 1: Clone repository
-
-```bash
-git clone https://github.com/tiennd2k5/logic_puzzles_starter.git
-cd logic_puzzles_starter
-```
-
-
-### Bước 2: Tạo môi trường ảo (khuyến nghị)
-
-Trên Windows:
-
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-```
-
-Trên Linux/macOS:
+Yêu cầu Python 3.10 trở lên. Chỉ cần Pillow để vẽ ảnh:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-### Bước 3: Chạy kiểm thử
+Mô hình, các thuật toán và test không cần thư viện ngoài.
 
-Từ thư mục gốc của dự án, chạy:
+## 6. Chạy
+
+Các lệnh chạy từ thư mục gốc của repo.
+
+### Chạy một thuật toán trên bộ đề
 
 ```bash
-python -m unittest discover -s tests -v
+python -m scripts.run --algo dfs --timeout 300
+python -m scripts.run --algo greedy --timeout 300 --kind light_up
 ```
 
-Lệnh này chạy toàn bộ `Unit Test` hiện có để kiểm tra việc đọc dữ liệu, chuyển đổi `State` và xác thực luật chơi.
+Tham số:
 
-## 5. Định dạng dữ liệu đầu vào
+- `--algo`: `dfs` hoặc `greedy`.
+- `--kind`: chỉ chạy một loại (`light_up` hoặc `star_battle`).
+- `--timeout`: giới hạn thời gian mỗi đề, tính bằng giây (mặc định 60).
+- `--data`, `--out`: thư mục đề và thư mục output (mặc định `data/` và `output/`).
 
-Các bài toán được lưu trong thư mục `data/` dưới định dạng JSON.
+Mỗi lần chạy ghi, với mỗi loại đề:
 
-### 5.1. Light Up
+- `output/<họ>/<algo>/<kind>/<tên đề>.json`: đề kèm `known_solution` do thuật toán tìm ra.
+- `output/<họ>/<algo>/<kind>/bang.md`: bảng 7 cột (đề, kích thước, mở rộng, thời gian, kết quả, sinh ra, stack max).
+- `output/<họ>/<algo>/<kind>/manifest.json`: số liệu máy đọc, dùng cho `compare` và `verify`.
 
-Ví dụ cấu trúc dữ liệu:
+### So sánh và kiểm tra
 
-```json
-{
-  "name": "light_up_example",
-  "type": "light_up",
-  "rows": 3,
-  "cols": 3,
-  "grid": [
-    [".", ".", "#"],
-    [".", "2", "."],
-    [".", ".", "."]
-  ],
-  "known_solution": []
-}
+```bash
+python -m scripts.compare
+python -m scripts.verify
 ```
 
-Đây là ví dụ minh họa cấu trúc JSON, không phải một lời giải đã được xác nhận.
+`compare` đọc các `manifest.json` và ghi `output/so-sanh/diff.md`, một bảng gộp các thuật toán trên cùng từng đề, kèm cột "nhanh hơn". `verify` kiểm tra dữ liệu, hợp đồng kết quả, `is_goal` của mọi lời giải và tính toàn vẹn của file output; thoát với mã 0 nếu không có lỗi.
 
-Ý nghĩa các ký hiệu:
+### Xem từng bước của một đề
 
-| Ký hiệu | Ý nghĩa |
+```bash
+python -m scripts.demo --algo greedy --puzzle data/light_up/lu-7x7-normal-01.json --timeout 10
+```
+
+### Vẽ bàn cờ
+
+```bash
+python -m scripts.figures                                  # toàn bộ ảnh
+python -m viz.puzzle data/star_battle/sb-5x5-normal-01.json  # một đề
+python -m viz.solution output/blind_search/dfs/light_up/lu-7x7-normal-01.json
+```
+
+`figs/` chưa có ảnh; chạy `scripts.figures` để sinh.
+
+## 7. Unit test
+
+```bash
+python3 -m unittest discover -s tests -t .
+```
+
+Các test hiện có:
+
+- `tests/test_model/`: mô hình và khoá hành vi của `is_goal`. Các ca "gần đúng nhưng sai" (ví dụ tường số đủ bóng nhưng còn ô tối, hai sao kề chéo) để đảm bảo `is_goal` kiểm tra đủ luật.
+- `tests/test_blind_search/`: DFS trên đề nhỏ, vô nghiệm, và hợp đồng kết quả.
+- `tests/test_heuristic/`: Greedy trên đề nhỏ, hợp đồng, path bắt đầu từ bàn trống, vô nghiệm, và đối chiếu với DFS.
+
+Test kiểm tra `is_goal(state)` chứ không so tập toạ độ với `known_solution`, vì một đề có thể có nhiều lời giải đúng.
+
+## 8. Kết quả hiện tại
+
+Bộ 48 đề, timeout 300 giây mỗi đề.
+
+| Thuật toán | Giải được | Timeout | Ghi chú |
+|---|---:|---:|---|
+| DFS | 42/48 | 6 | Giải được nhiều đề lớn nhất trong các thuật toán đã thử |
+| Greedy | 25/48 | 23 | Nhanh nhất trên Star Battle đến 10×10 |
+
+Chi tiết theo nhóm đề (Greedy):
+
+| Nhóm | Giải được |
 |---|---|
-| `.` | Ô trắng, có thể đặt bóng đèn |
-| `#` | Ô tường không có ràng buộc số |
-| `0`–`4` | Ô tường quy định số bóng đèn cần có ở các ô liền kề |
+| Star Battle 5×5 đến 10×10 | 18/18 |
+| Star Battle 14×14 đến 25×25 | 0/7 |
+| Light Up 7×7 | 7/7 |
+| Light Up 10×10 | 0/7 |
+| Light Up 14×14 trở lên | 0/9 |
 
-Các trường bắt buộc:
+Greedy được chạy trên 8 tiến trình song song để rút ngắn thời gian. Khi chạy đơn lẻ trước đó, `lu-10x10-normal-01` giải được sau 232s; trong lần chạy song song này đề đó timeout. Vì vậy với các đề gần ngưỡng 300s, kết quả có thể thay đổi theo mức tải của máy.
 
-- `name`: Tên bài toán.
-- `type`: Phải là `light_up`.
-- `rows`, `cols`: Số hàng và số cột.
-- `grid`: Lưới biểu diễn bàn cờ.
+Dữ liệu đầy đủ: `output/so-sanh/diff.md` và `output/<họ>/<algo>/<kind>/bang.md`.
 
-Trường tùy chọn:
+## 9. Thêm thuật toán
 
-- `known_solution`: Đáp án có sẵn : danh sách tọa độ đặt bóng đèn, sử dụng chỉ số bắt đầu từ `0`.
+1. Viết hàm nhận một `StarBattleProblem` hoặc `LightUpProblem` và trả về kết quả qua `build_result`.
+2. Đăng ký trong `src/<họ>/registry.py` và thêm dòng tương ứng vào `src/registry.py`.
+3. Thêm test trong `tests/`.
+4. Chạy `scripts.run`, `scripts.compare`, `scripts.verify`.
 
-Ví dụ tọa độ `[1, 2]` có nghĩa là hàng `1`, cột `2`.
+`scripts.run`, `compare` và `verify` tự nhận thuật toán mới qua `src/registry.py`.
 
-### 5.2. Star Battle
+## 10. Thêm đề mới
 
-Ví dụ cấu trúc dữ liệu:
+1. Tạo file JSON trong `data/light_up/` hoặc `data/star_battle/`.
+2. Đọc bằng `from_json()` và kiểm tra kích thước, toạ độ.
+3. Nếu có lời giải mẫu, ghi vào `known_solution`. Danh sách rỗng nghĩa là chưa có lời giải, không phải là đề vô nghiệm.
 
-```json
-{
-  "name": "shapeless_example",
-  "type": "star_battle",
-  "variant": "shapeless",
-  "rows": 3,
-  "cols": 3,
-  "stars_per_unit": 1,
-  "blocked_cells": [],
-  "known_solution": []
-}
-```
+## 11. Ghi chú
 
-Các trường dữ liệu:
-
-| Trường | Ý nghĩa |
-|---|---|
-| `name` | Tên bài toán |
-| `type` | Phải là `star_battle` |
-| `variant` | Biến thể `normal` hoặc `shapeless` |
-| `rows`, `cols` | Số hàng và số cột |
-| `stars_per_unit` | Số sao yêu cầu trong mỗi hàng, cột và vùng nếu có |
-| `regions` | Lưới xác định vùng, bắt buộc với biến thể `normal` |
-| `blocked_cells` | Danh sách ô không được đặt sao |
-| `known_solution` | Danh sách tọa độ đặt sao |
-
-Đối với `normal`, bàn cờ phải có lưới `regions` với đúng số vùng khác nhau bằng số hàng. Đối với `shapeless`, không sử dụng `regions`.
-
-Phiên bản hiện tại yêu cầu bàn cờ hình vuông.
-
-Tọa độ sử dụng chỉ số bắt đầu từ `0`, theo định dạng `[row, col]`.
-
-## 6. Biểu diễn State bằng Bitmask
-
-Cả hai bài toán đều sử dụng một `tuple` chứa các số nguyên, mỗi số nguyên đại diện cho một hàng của bàn cờ.
-
-Ví dụ:
-
-```python
-state = (
-    0b00101,
-    0b01000,
-    0b10010,
-)
-```
-
-Mỗi bit đại diện cho một cột:
-
-- Bit bằng `1`: Ô tương ứng có bóng đèn hoặc ngôi sao.
-- Bit bằng `0`: Ô tương ứng không có bóng đèn hoặc ngôi sao.
-- Bit thấp nhất đại diện cho cột `0`.
-
-Ví dụ:
-
-```python
-mask = 0b00101
-```
-
-Với bàn cờ có ít nhất 3 cột, `mask` này biểu diễn hai ô được chọn tại cột `0` và cột `2`.
-
-### Chuyển đổi State
-
-Cả hai lớp bài toán đều cung cấp các hàm chuyển đổi giữa tọa độ và `State`:
-
-```python
-state = problem.state_from_coords([
-    (0, 0),
-    (1, 2)
-])
-
-coords = problem.coords_from_state(state)
-
-print(state)
-print(coords)
-```
-
-Cách biểu diễn này giúp tiết kiệm bộ nhớ và hỗ trợ thao tác bằng toán tử bit trong các thuật toán tìm kiếm.
-
-Lưu ý: Hai bài toán sử dụng cùng định dạng `State`, nhưng có luật chơi khác nhau. Cần dùng đúng lớp bài toán để kiểm tra trạng thái.
-
-## 7. Đọc và kiểm tra bài toán
-
-### 7.1. Light Up
-
-```python
-from src.light_up import LightUpProblem
-
-problem = LightUpProblem.from_json(
-    "data/light_up/light_up_7x7.json"
-)
-
-print(problem.name)
-print(problem.rows, problem.cols)
-
-state = problem.state_from_coords(
-    problem.known_solution
-)
-
-print(problem.render(state))
-print(problem.is_valid_state(state))
-print(problem.is_goal(state))
-```
-
-Các phương thức chính:
-
-| Phương thức | Chức năng |
-|---|---|
-| `from_json(path)` | Đọc bài toán từ file JSON |
-| `from_dict(data)` | Tạo bài toán từ Python dictionary |
-| `state_from_coords(coords)` | Chuyển tọa độ bóng đèn thành `State` |
-| `coords_from_state(state)` | Chuyển `State` thành danh sách tọa độ |
-| `illuminated_cells(state)` | Trả về tập hợp các ô được chiếu sáng |
-| `is_valid_state(state)` | Kiểm tra xung đột bóng đèn và ràng buộc của tường số |
-| `is_goal(state)` | Kiểm tra trạng thái đã giải xong hay chưa |
-| `render(state)` | Hiển thị bàn cờ dưới dạng văn bản |
-
-`is_valid_state(state)` kiểm tra các ràng buộc áp dụng cho cách đặt bóng đèn hiện tại. Khi cần xác nhận lời giải hoàn chỉnh, sử dụng `is_goal(state)`.
-
-### 7.2. Star Battle
-
-```python
-from src.star_battle import StarBattleProblem
-
-problem = StarBattleProblem.from_json(
-    "data/star_battle/normal_1star_5x5.json"
-)
-
-print(problem.name)
-print(problem.variant)
-
-state = problem.state_from_coords(
-    problem.known_solution
-)
-
-print(problem.render(state))
-print(problem.is_goal(state))
-```
-
-Các phương thức chính:
-
-| Phương thức | Chức năng |
-|---|---|
-| `from_json(path)` | Đọc bài toán từ file JSON |
-| `from_dict(data)` | Tạo bài toán từ Python dictionary |
-| `state_from_coords(coords)` | Chuyển tọa độ sao thành `State` |
-| `coords_from_state(state)` | Chuyển `State` thành danh sách tọa độ |
-| `is_valid_state(state, partial=True)` | Kiểm tra trạng thái đang xây dựng |
-| `is_goal(state)` | Kiểm tra lời giải hoàn chỉnh |
-| `render(state)` | Hiển thị bàn cờ dưới dạng văn bản |
-
-Với Star Battle, `partial=True` cho phép một hàng, cột hoặc vùng chưa đủ số sao yêu cầu trong quá trình tìm kiếm. Tuy nhiên, trạng thái vẫn không được vượt quá số sao quy định hoặc vi phạm các luật còn lại.
-
-## 8. Chạy chương trình
-
-Các lệnh sau được chạy từ thư mục gốc của repo.
-
-### Light Up
-
-```bash
-python -m src.light_up data/light_up/light_up_7x7.json
-```
-
-Chạy với bộ dữ liệu lớn hơn:
-
-```bash
-python -m src.light_up data/light_up/light_up_10x10.json
-```
-
-### Star Battle
-
-```bash
-python -m src.star_battle data/star_battle/normal_1star_5x5.json
-```
-
-Chạy biến thể `normal` với bàn cờ lớn hơn:
-
-```bash
-python -m src.star_battle data/star_battle/normal_2star_10x10.json
-```
-
-Chạy biến thể `shapeless`:
-
-```bash
-python -m src.star_battle data/star_battle/shapeless_1star_6x6.json
-```
-
-```bash
-python -m src.star_battle data/star_battle/shapeless_2star_10x10.json
-```
-
-Các lệnh này dùng để đọc dữ liệu, hiển thị bài toán và kiểm tra `known_solution` nếu file có cung cấp lời giải.
-
-**Lưu ý:** Các lệnh trên chưa tự động tìm lời giải. Việc tìm kiếm cần được triển khai trong các `Search Algorithm` và tích hợp qua `solver.py`.
-
-## 9. Interface chung cho Search Algorithm
-
-File `src/solver.py` cung cấp hàm:
-
-```python
-def solve(problem, algo):
-    if not callable(algo):
-        raise TypeError(
-            "algo must be callable and accept one problem argument"
-        )
-    return algo(problem)
-```
-
-Hàm `solve(problem, algo)` đóng vai trò adapter, giúp các thành viên gọi thuật toán thông qua cùng một `Interface`.
-
-### Ví dụ tích hợp thuật toán
-
-Giả sử một thành viên triển khai thuật toán trong `src/my_algorithm.py`:
-
-```python
-def my_algorithm(problem):
-    # Triển khai thuật toán tìm kiếm tại đây.
-    # Trả về kết quả nếu tìm được lời giải.
-    # Trả về None nếu không tìm được lời giải.
-    ...
-```
-
-Có thể gọi thuật toán như sau:
-
-```python
-from src.light_up import LightUpProblem
-from src.solver import solve
-from src.my_algorithm import my_algorithm
-
-problem = LightUpProblem.from_json(
-    "data/light_up/light_up_7x7.json"
-)
-
-result = solve(problem, my_algorithm)
-```
-
-Đối với Star Battle, chỉ cần thay lớp bài toán và file JSON tương ứng:
-
-```python
-from src.star_battle import StarBattleProblem
-from src.solver import solve
-from src.my_algorithm import my_algorithm
-
-problem = StarBattleProblem.from_json(
-    "data/star_battle/normal_1star_5x5.json"
-)
-
-result = solve(problem, my_algorithm)
-```
-
-### Quy ước khi triển khai thuật toán
-
-Mỗi thuật toán nên:
-
-1. Nhận một đối tượng `LightUpProblem` hoặc `StarBattleProblem`.
-2. Sử dụng `State` dạng `Bitmask` để biểu diễn trạng thái.
-3. Sinh các trạng thái ứng viên và loại bỏ trạng thái không hợp lệ.
-4. Sử dụng `problem.is_goal(state)` để kiểm tra lời giải.
-5. Trả về kết quả theo định dạng mà nhóm đã thống nhất, hoặc `None` nếu không tìm được lời giải.
-
-**Lưu ý:** `solver.py` hiện không tự triển khai thuật toán tìm kiếm và cũng không quy định kết quả bắt buộc phải là `State` hay đường đi. Nhóm cần thống nhất định dạng đầu ra trước khi tích hợp các thuật toán.
-
-## 10. Chạy Unit Test
-
-Chạy toàn bộ test:
-
-```bash
-python -m unittest discover -s tests -v
-```
-
-Chỉ chạy test Light Up:
-
-```bash
-python -m unittest discover -s tests -p "test_light_up.py" -v
-```
-
-Chỉ chạy test Star Battle:
-
-```bash
-python -m unittest discover -s tests -p "test_star_battle.py" -v
-```
-
-Các test hiện có kiểm tra:
-
-- Đọc file JSON và xác nhận kích thước bàn cờ.
-- Đọc và xác thực `known_solution`.
-- Chuyển đổi giữa tọa độ và `Bitmask`.
-- Từ chối tọa độ nằm ngoài bàn cờ và `State` có định dạng sai.
-- Kiểm tra chiếu sáng, xung đột bóng đèn và tác dụng chắn sáng của tường trong Light Up.
-- Kiểm tra số sao theo hàng, cột, vùng, luật không tiếp xúc và ô bị chặn trong Star Battle.
-
-Khi bổ sung thuật toán, nên viết thêm `Unit Test` để kiểm tra lời giải trả về, trường hợp không có lời giải và các chức năng riêng của thuật toán.
-
-## 11. Thêm bài toán mới
-
-Để bổ sung một puzzle:
-
-1. Tạo file JSON trong thư mục tương ứng dưới `data/`.
-2. Khai báo các trường dữ liệu theo đúng định dạng của bài toán.
-3. Kiểm tra kích thước bàn cờ và các tọa độ.
-4. Nếu có lời giải mẫu, thêm danh sách tọa độ vào `known_solution`.
-5. Đọc file bằng phương thức `from_json()`.
-6. Chuyển lời giải thành `State` và kiểm tra bằng `problem.is_goal(state)`.
-
-`known_solution` phải chứa lời giải hợp lệ cho đúng bộ dữ liệu tương ứng. Danh sách rỗng không có nghĩa là puzzle đã được giải.
-
-## 12. Quy ước làm việc nhóm
-
-Để các thành viên có thể phát triển độc lập và tích hợp thuận lợi:
-
-- Giữ nguyên định dạng `State` dạng `Bitmask`.
-- Sử dụng các lớp bài toán hiện có để kiểm tra luật, tránh viết lại logic trùng lặp.
-- Tách phần triển khai `Search Algorithm` khỏi phần đọc dữ liệu và kiểm tra luật chơi.
-- Thống nhất định dạng kết quả trả về của `solve(problem, algo)`.
-- Bổ sung test khi thêm tính năng hoặc thay đổi `Interface`.
-- Chạy toàn bộ test trước khi commit code.
-- Cập nhật README nếu có thay đổi đối với cấu trúc dữ liệu hoặc `Interface` chung.
-
-## 13. Phạm vi hiện tại
-
-Repo cung cấp nền tảng dùng chung gồm:
-
-- Mô hình dữ liệu cho Light Up và Star Battle.
-- Đọc và kiểm tra file JSON.
-- Biểu diễn `State` bằng `Bitmask`.
-- Kiểm tra luật chơi và trạng thái đích.
-- Hiển thị bàn cờ.
-- `Interface` chung để tích hợp thuật toán.
-- Các `Unit Test` cơ bản.
-
-Các `Search Algorithm` sẽ được phát triển riêng và tích hợp qua `solve(problem, algo)`.
-
----
-
-**Mục tiêu:** Xây dựng nền tảng chung, dễ kiểm thử và dễ mở rộng để các thành viên có thể triển khai, tích hợp và so sánh các thuật toán tìm kiếm cho Light Up và Star Battle.
+- `known_solution` trong file output là lời giải do thuật toán tìm ra, không phải đáp án gốc của đề.
+- `path` của Greedy và DFS là các trạng thái theo từng bước quyết định. Với Light Up, bước đầu có thể đặt nhiều bóng do lan truyền ràng buộc.
+- Thời gian đo bằng `time.perf_counter()` và có thể dao động giữa các lần chạy.

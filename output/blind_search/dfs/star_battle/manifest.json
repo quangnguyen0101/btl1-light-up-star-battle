@@ -1,0 +1,183 @@
+{
+  "algo": "dfs",
+  "kind": "star_battle",
+  "timeout": 300.0,
+  "chay_luc": "2026-10-29T08:16:24",
+  "results": {
+    "sb-5x5-normal-01": {
+      "status": "xong",
+      "expanded": 16,
+      "generated": 18,
+      "frontier_peak": 6,
+      "time_s": 0.001
+    },
+    "sb-5x5-normal-02": {
+      "status": "xong",
+      "expanded": 36,
+      "generated": 36,
+      "frontier_peak": 7,
+      "time_s": 0.001
+    },
+    "sb-5x5-normal-03": {
+      "status": "xong",
+      "expanded": 9,
+      "generated": 13,
+      "frontier_peak": 7,
+      "time_s": 0.0
+    },
+    "sb-6x6-hard-01": {
+      "status": "xong",
+      "expanded": 9,
+      "generated": 12,
+      "frontier_peak": 6,
+      "time_s": 0.0
+    },
+    "sb-6x6-hard-02": {
+      "status": "xong",
+      "expanded": 17,
+      "generated": 24,
+      "frontier_peak": 9,
+      "time_s": 0.001
+    },
+    "sb-6x6-normal-01": {
+      "status": "xong",
+      "expanded": 111,
+      "generated": 114,
+      "frontier_peak": 10,
+      "time_s": 0.005
+    },
+    "sb-6x6-normal-02": {
+      "status": "xong",
+      "expanded": 7,
+      "generated": 16,
+      "frontier_peak": 11,
+      "time_s": 0.0
+    },
+    "sb-6x6-shapeless-01": {
+      "status": "xong",
+      "expanded": 48,
+      "generated": 51,
+      "frontier_peak": 9,
+      "time_s": 0.001
+    },
+    "sb-8x8-hard-01": {
+      "status": "xong",
+      "expanded": 296,
+      "generated": 302,
+      "frontier_peak": 16,
+      "time_s": 0.027
+    },
+    "sb-8x8-hard-02": {
+      "status": "xong",
+      "expanded": 805,
+      "generated": 815,
+      "frontier_peak": 20,
+      "time_s": 0.066
+    },
+    "sb-8x8-normal-01": {
+      "status": "xong",
+      "expanded": 2460,
+      "generated": 2470,
+      "frontier_peak": 21,
+      "time_s": 0.222
+    },
+    "sb-8x8-normal-02": {
+      "status": "xong",
+      "expanded": 2912,
+      "generated": 2915,
+      "frontier_peak": 20,
+      "time_s": 0.25
+    },
+    "sb-10x10-hard-01": {
+      "status": "xong",
+      "expanded": 5588,
+      "generated": 5612,
+      "frontier_peak": 54,
+      "time_s": 0.861
+    },
+    "sb-10x10-hard-02": {
+      "status": "xong",
+      "expanded": 1313,
+      "generated": 1342,
+      "frontier_peak": 57,
+      "time_s": 0.221
+    },
+    "sb-10x10-normal-01": {
+      "status": "xong",
+      "expanded": 43811,
+      "generated": 43839,
+      "frontier_peak": 59,
+      "time_s": 6.172
+    },
+    "sb-10x10-normal-02": {
+      "status": "xong",
+      "expanded": 10086,
+      "generated": 10104,
+      "frontier_peak": 52,
+      "time_s": 1.452
+    },
+    "sb-10x10-normal-03": {
+      "status": "xong",
+      "expanded": 1524,
+      "generated": 1549,
+      "frontier_peak": 46,
+      "time_s": 0.292
+    },
+    "sb-10x10-shapeless-01": {
+      "status": "xong",
+      "expanded": 4026,
+      "generated": 4039,
+      "frontier_peak": 38,
+      "time_s": 0.322
+    },
+    "sb-14x14-hard-01": {
+      "status": "xong",
+      "expanded": 437396,
+      "generated": 437578,
+      "frontier_peak": 275,
+      "time_s": 168.554
+    },
+    "sb-14x14-hard-02": {
+      "status": "timeout",
+      "expanded": -1,
+      "generated": -1,
+      "frontier_peak": -1,
+      "time_s": 300.0
+    },
+    "sb-14x14-normal-01": {
+      "status": "timeout",
+      "expanded": -1,
+      "generated": -1,
+      "frontier_peak": -1,
+      "time_s": 300.0
+    },
+    "sb-14x14-normal-02": {
+      "status": "xong",
+      "expanded": 365194,
+      "generated": 365248,
+      "frontier_peak": 243,
+      "time_s": 255.961
+    },
+    "sb-17x17-daily-01": {
+      "status": "xong",
+      "expanded": 73425,
+      "generated": 74154,
+      "frontier_peak": 1037,
+      "time_s": 48.37
+    },
+    "sb-21x21-weekly-01": {
+      "status": "timeout",
+      "expanded": -1,
+      "generated": -1,
+      "frontier_peak": -1,
+      "time_s": 300.002
+    },
+    "sb-25x25-monthly-01": {
+      "status": "timeout",
+      "expanded": -1,
+      "generated": -1,
+      "frontier_peak": -1,
+      "time_s": 300.005
+    }
+  }
+}
