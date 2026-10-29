@@ -1,9 +1,9 @@
 """Greedy Best-First cho Star Battle.
 
-Cùng cách sinh nút với A* (``a_star/star_battle.py``): mỗi bước đặt đủ
+Mỗi bước đặt đủ
 ``stars_per_unit`` sao cho hàng còn thiếu đầu tiên.
 
-Khác A* ở thứ tự mở rộng: chỉ dùng ``h(n)``, không cộng chi phí ``g(n)``.
+Chỉ dùng ``h(n)`` để chọn nút mở rộng tiếp theo.
 ``h(n)`` đếm số cột và số vùng còn thiếu sao. Tổng số sao còn thiếu thì luôn
 bằng nhau ở mọi độ sâu nên không phân biệt được hai nút; hai đại lượng này thì
 giảm đúng khi đặt sao vào cột/vùng còn thiếu.
@@ -17,10 +17,64 @@ giảm đúng khi đặt sao vào cột/vùng còn thiếu.
 from __future__ import annotations
 
 import heapq
+from itertools import combinations
 
-from src.heuristic.a_star.star_battle import _candidates
 from src.model.result import build_result, path_from_came_from
 from src.model.star_battle import StarBattleProblem
+
+
+def _candidates(problem: StarBattleProblem, state: tuple[int, ...], row: int):
+    """Các bộ cột có thể đặt đủ sao cho hàng ``row``, sắp theo độ "ăn" ràng buộc."""
+    k = problem.stars_per_unit
+    cols = problem.cols
+    free = [
+        c for c in range(cols)
+        if not (state[row] >> c) & 1 and (row, c) not in problem.blocked_cells
+    ]
+    if len(free) < k:
+        return []
+
+    col_count = [0] * cols
+    for mask in state:
+        for c in range(cols):
+            if (mask >> c) & 1:
+                col_count[c] += 1
+    region_count: dict[object, int] = {}
+    if problem.regions is not None:
+        for r, mask in enumerate(state):
+            for c in range(cols):
+                if (mask >> c) & 1:
+                    rid = problem.regions[r][c]
+                    region_count[rid] = region_count.get(rid, 0) + 1
+
+    scored = []
+    for combo in combinations(free, k):
+        filled = 0
+        ok = True
+        seen_cols = set()
+        for c in combo:
+            if col_count[c] >= k or c in seen_cols:
+                ok = False
+                break
+            seen_cols.add(c)
+            filled += 1 if col_count[c] + 1 == k else 0
+            if problem.regions is not None:
+                rid = problem.regions[row][c]
+                used = region_count.get(rid, 0) + sum(
+                    1 for cc in combo if cc <= c and problem.regions[row][cc] == rid
+                )
+                if used > k:
+                    ok = False
+                    break
+                if used == k:
+                    filled += 1
+        if ok:
+            mask = 0
+            for c in combo:
+                mask |= 1 << c
+            scored.append((filled, mask))
+    scored.sort(key=lambda x: (-x[0], x[1]))
+    return scored
 
 
 def _h(problem: StarBattleProblem, state: tuple[int, ...]) -> int:

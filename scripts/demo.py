@@ -1,9 +1,9 @@
 """Chạy một đề và in tiến trình theo từng bước của ``path``.
 
     python -m scripts.demo --algo dfs --puzzle data/star_battle/sb-5x5-normal-01.json
-    python -m scripts.demo --algo a_star --puzzle data/light_up/lu-7x7-normal-01.json --timeout 10
+    python -m scripts.demo --algo greedy --puzzle data/light_up/lu-7x7-normal-01.json --timeout 10
 
-``path[0]`` là bàn cờ trống, ``path[-1]`` là lời giải.  Với A* Light Up, các
+``path[0]`` là bàn cờ trống, ``path[-1]`` là lời giải.  Với Greedy Light Up, các
 bước đầu có thể nhảy nhiều bóng một lúc: đó là các bước bắt buộc do lan truyền
 ràng buộc, không phải quyết định của thuật toán.
 """

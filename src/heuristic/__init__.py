@@ -1,4 +1,4 @@
-"""Heuristic (informed) search algorithms: A*, Greedy Best-First, ..."""
+"""Heuristic (informed) search algorithms: Greedy Best-First, ..."""
 from src.heuristic.registry import ALGORITHMS
 
 __all__ = ["ALGORITHMS"]
