@@ -138,12 +138,12 @@ Test kiểm tra `is_goal(state)` chứ không so tập toạ độ với `known_
 
 ## 8. Kết quả hiện tại
 
-Bộ 48 đề, timeout 300 giây mỗi đề.
+Bộ 53 đề, timeout 60 giây mỗi đề.
 
 | Thuật toán | Giải được | Timeout | Ghi chú |
 |---|---:|---:|---|
-| DFS | 42/48 | 6 | Giải được nhiều đề lớn nhất trong các thuật toán đã thử |
-| Greedy | 25/48 | 23 | Nhanh nhất trên Star Battle đến 10×10 |
+| DFS | 42/53 | 11 | Giải được nhiều đề lớn nhất trong các thuật toán đã thử |
+| Greedy | 30/53 | 23 | Nhanh nhất trên Star Battle đến 10×10 |
 
 Chi tiết theo nhóm đề (Greedy):
 
@@ -152,10 +152,10 @@ Chi tiết theo nhóm đề (Greedy):
 | Star Battle 5×5 đến 10×10 | 18/18 |
 | Star Battle 14×14 đến 25×25 | 0/7 |
 | Light Up 7×7 | 7/7 |
-| Light Up 10×10 | 0/7 |
-| Light Up 14×14 trở lên | 0/9 |
+| Light Up 10×10 | 5/7 |
+| Light Up 14×14 trở lên | 0/11 |
 
-Greedy được chạy trên 8 tiến trình song song để rút ngắn thời gian. Khi chạy đơn lẻ trước đó, `lu-10x10-normal-01` giải được sau 232s; trong lần chạy song song này đề đó timeout. Vì vậy với các đề gần ngưỡng 300s, kết quả có thể thay đổi theo mức tải của máy.
+Greedy được chạy trên 8 tiến trình song song để rút ngắn thời gian. Tuy nhiên thời gian thực tế có thể dao động và với các đề gần ngưỡng 60s kết quả có thể khác do tải máy hoặc chia sẻ tài nguyên.
 
 Dữ liệu đầy đủ: `output/so-sanh/diff.md` và `output/<họ>/<algo>/<kind>/bang.md`.
 
